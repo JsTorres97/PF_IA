@@ -12,44 +12,49 @@ import java.util.*;
 public class Mochila{
 
     public static void main(String[] args) {
-        int NumeroMaxObjetos =10;
+        int NumeroMaxObjetos =5;
         int PesoMaximo = 15;  
         Random rnd = new Random();
-        int[] profit = new int[NumeroMaxObjetos+1];
+        //el arreglo generador sirve para generar numeros mas grandes y la busqueda sea más precisa 
+        int[] generador = new int[NumeroMaxObjetos+1];
         int[] peso = new int[NumeroMaxObjetos+1];
 
-        // generate random instance, items 1..N
+        // Este cíclo sirve para los aleatorios
         for (int n = 1; n <= NumeroMaxObjetos; n++) {
-            profit[n] = rnd.nextInt(1000);
+            generador[n] = rnd.nextInt(1000);
             peso[n] = rnd.nextInt(PesoMaximo);
         }
 
-        // opt[n][w] = max profit of packing items 1..n with weight limit w
-        // sol[n][w] = does opt solution to pack items 1..n with weight limit w include item n?
-        int[][] opt = new int[NumeroMaxObjetos+1][PesoMaximo+1];
+        int[][] opc = new int[NumeroMaxObjetos+1][PesoMaximo+1];
         boolean[][] sol = new boolean[NumeroMaxObjetos+1][PesoMaximo+1];
 
         for (int n = 1; n <= NumeroMaxObjetos; n++) {
             for (int w = 1; w <= PesoMaximo; w++) {
 
-                // don't take item n
-                int option1 = opt[n-1][w];
+                // Almaceno para despues comparar
+                int opc1 = opc[n-1][w];
 
-                // take item n
-                int option2 = Integer.MIN_VALUE;
+                // Selecciono los minimos
+                int opc2 = Integer.MIN_VALUE;
                 if (peso[n] <= w){
-                    option2 = profit[n] + opt[n-1][w-peso[n]];
+                    opc2 = generador[n] + opc[n-1][w-peso[n]];
                 }
 
-                // select better of two options
-                opt[n][w] = Math.max(option1, option2);
-                sol[n][w] = (option2 > option1);
+                // Selecciono las mejores opciones
+                opc[n][w] = Math.max(opc1, opc2);
+                //El arreglo sol, se guardan 
+                if (opc2 > opc1){
+                    sol[n][w] = true;
+                }else{
+                    sol[n][w] = false;
+                }
             }
         }
 
-        // determine which items to take
+        // Determino que objetos llevar
         String[] llevar = new String[NumeroMaxObjetos+1];
         for (int n = NumeroMaxObjetos, w = PesoMaximo; n > 0; n--) {
+            //Si están en el arreglo me los llevo
             if (sol[n][w]) {
                 llevar[n] = "Si";
                 w = w - peso[n];
